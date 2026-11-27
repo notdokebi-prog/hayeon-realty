@@ -220,6 +220,7 @@ textarea { min-height: 96px; resize: vertical; }
 .agree { flex-direction: row; align-items: flex-start; gap: 8px; font-weight: 400; color: var(--muted); font-size: .85rem; }
 .agree input { width: auto; margin-top: 4px; }
 .msg { font-size: .9rem; color: var(--leaf); font-weight: 700; }
+.form-note { background: var(--leaf-soft); color: var(--ink); border-radius: 10px; padding: 10px 14px; font-size: .9rem; }
 
 /* footer */
 footer { padding-block: 36px; font-size: .85rem; color: var(--muted); }
@@ -262,7 +263,6 @@ footer strong { color: var(--ink); font-family: var(--font-display); font-weight
       <svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><path d="M3 6h16M3 11h16M3 16h16" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
     </button>
     <nav aria-label="주요 메뉴" id="main-nav">
-      <a href="#listings">추천 매물</a>
       <a href="#prices">실거래가</a>
       <a href="#process">상담 과정</a>
       <a href="#about">소개</a>
@@ -280,7 +280,7 @@ footer strong { color: var(--ink); font-family: var(--font-display); font-weight
         <p class="lead">매매·전세·월세 모두 편하게 물어보세요. 단지마다 직접 다녀보고 아는 만큼 솔직하게 말씀드려요.</p>
         <div class="cta">
           <a class="btn primary" href="#contact">상담 신청하기</a>
-          <a class="btn ghost" href="#listings">추천 매물 보기</a>
+          <a class="btn ghost" href="#prices">포레온 실거래가 보기</a>
         </div>
       </div>
       <svg viewBox="0 0 480 300" role="img" aria-label="아파트 단지 일러스트">
@@ -307,7 +307,8 @@ footer strong { color: var(--ink); font-family: var(--font-display); font-weight
     </div>
   </div>
 
-  <section id="listings">
+  <!-- 추천 매물: 실제 매물이 정리될 때까지 숨김 (hidden 을 지우면 다시 보임. 예시 매물을 공개하면 허위 매물 광고가 될 수 있음) -->
+  <section id="listings" hidden>
     <div class="wrap">
       <div class="section-head">
         <p class="eyebrow">추천 매물</p>
@@ -457,6 +458,7 @@ footer strong { color: var(--ink); font-family: var(--font-display); font-weight
             <a href="https://map.naver.com/p/search/%EA%B2%BD%EA%B8%B0%EB%8F%84%20%EC%95%88%EC%96%91%EC%8B%9C%20%EB%8F%99%EC%95%88%EA%B5%AC%20%EA%B4%80%ED%8F%89%EB%A1%9C212%EB%B2%88%EA%B8%B8%2021" target="_blank" rel="noopener">네이버 지도</a>에서 길찾기</p>
         </div>
         <form id="consult" novalidate>
+          <p class="form-note">온라인 신청은 준비 중이에요. 지금은 <b>010-2768-8957</b>로 전화나 문자로 문의해 주세요.</p>
           <div class="row">
             <label for="name">성함<input id="name" name="name" required placeholder="홍길동"></label>
             <label for="phone">연락처<input id="phone" name="phone" required inputmode="tel" placeholder="010-1234-5678"></label>
@@ -939,6 +941,7 @@ document.getElementById("consult").addEventListener("submit", e => {
   msg.hidden = false;
   if (!name || !phone) { msg.textContent = "성함과 연락처를 입력해 주세요."; return; }
   if (!document.getElementById("agree").checked) { msg.textContent = "개인정보 수집·이용에 동의해 주셔야 신청할 수 있어요."; return; }
-  msg.textContent = "시안 화면이라 실제로 전송되지는 않아요. 실제 사이트에서는 이 내용이 사무소로 전달됩니다.";
+  // 온라인 접수(서버 연결)는 아직 없어요. 입력한 내용은 어디에도 저장되거나 전송되지 않아요.
+  msg.textContent = "온라인 접수는 준비 중이라 신청서가 전송되지 않았어요. 010-2768-8957로 전화나 문자를 주시면 바로 상담해 드릴게요.";
 });
 </script>
