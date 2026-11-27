@@ -1,0 +1,150 @@
+<title>포레온 실거래가 정리</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@400;500;700&display=swap">
+<style>
+/* Layout: 하연이 부동산 홈페이지와 같은 색. 요약 숫자 → 평형별 가격대 표(막대) → 전세 → 최근 거래 순서의 한 장짜리 정리 */
+:root {
+  --bg: #F6FAF8; --surface: #FFFFFF; --ink: #1F3330; --muted: #5B706C; --line: #DCE8E4;
+  --leaf: #2E8C74; --leaf-soft: #E1F2EC; --sun: #E0A100; --track: #E8F0ED;
+  --font-display: "Jua", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  --font-body: "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #101A18; --surface: #172321; --ink: #E6F0ED; --muted: #9DB2AD; --line: #2A3B38;
+  --leaf: #5CC4A6; --leaf-soft: #1D3631; --sun: #FFD36B; --track: #22322F; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #101A18; --surface: #172321; --ink: #E6F0ED; --muted: #9DB2AD; --line: #2A3B38;
+  --leaf: #5CC4A6; --leaf-soft: #1D3631; --sun: #FFD36B; --track: #22322F; color-scheme: dark; }
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.65; word-break: keep-all; }
+.wrap { max-width: 980px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 36px 56px; }
+h1, h2 { font-family: var(--font-display); font-weight: 400; margin: 0; text-wrap: balance; line-height: 1.3; }
+h1 { font-size: clamp(1.7rem, 4vw, 2.3rem); }
+h2 { font-size: 1.35rem; margin-bottom: 12px; }
+p { margin: 0; }
+.eyebrow { color: var(--leaf); font-weight: 700; font-size: .9rem; }
+.meta { color: var(--muted); font-size: .88rem; margin-top: 8px; }
+.stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin: 24px 0 32px; }
+.stat { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; min-width: 0; }
+.stat .k { color: var(--muted); font-size: .82rem; }
+.stat .v { font-family: var(--font-display); font-size: 1.5rem; font-variant-numeric: tabular-nums; }
+section { margin-top: 32px; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 8px 18px 14px; }
+.scroll { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; min-width: 720px; }
+th { text-align: left; color: var(--muted); font-weight: 500; font-size: .82rem; padding: 10px 8px; border-bottom: 1.5px solid var(--line); white-space: nowrap; }
+td { padding: 11px 8px; border-bottom: 1px solid var(--line); white-space: nowrap; vertical-align: middle; }
+tr:last-child td { border-bottom: 0; }
+.num { text-align: right; }
+.type b { font-size: 1.02rem; }
+.type small { display: block; color: var(--muted); font-size: .78rem; }
+.price { font-weight: 700; }
+.sub { color: var(--muted); font-size: .8rem; display: block; font-weight: 400; }
+.few { color: var(--muted); font-size: .75rem; border: 1px solid var(--line); border-radius: 999px; padding: 0 7px; margin-left: 4px; }
+.barcell { width: 34%; min-width: 220px; }
+.bar { position: relative; height: 22px; }
+.bar .track { position: absolute; left: 0; right: 0; top: 10px; height: 2px; background: var(--track); border-radius: 1px; }
+.bar .range { position: absolute; top: 6px; height: 10px; background: var(--leaf); opacity: .35; border-radius: 4px; min-width: 4px; }
+.bar .med { position: absolute; top: 3px; width: 3px; height: 16px; margin-left: -1.5px; background: var(--leaf); border-radius: 2px; }
+.bar .last { position: absolute; top: 5px; width: 12px; height: 12px; margin-left: -6px; background: var(--sun); border: 2px solid var(--surface); transform: rotate(45deg); border-radius: 2px; }
+.axis { display: flex; justify-content: space-between; color: var(--muted); font-size: .75rem; }
+.legend { display: flex; gap: 16px; flex-wrap: wrap; color: var(--muted); font-size: .82rem; margin: 6px 0 4px; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.lg-range { width: 18px; height: 10px; background: var(--leaf); opacity: .35; border-radius: 3px; }
+.lg-med { width: 3px; height: 14px; background: var(--leaf); border-radius: 2px; }
+.lg-last { width: 10px; height: 10px; background: var(--sun); transform: rotate(45deg); border-radius: 2px; }
+.notes { margin-top: 28px; color: var(--muted); font-size: .84rem; display: grid; gap: 4px; padding-left: 18px; }
+@media (max-width: 640px) { .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+</style>
+
+<div class="wrap">
+  <p class="eyebrow">하연이 부동산 · 실거래가 정리</p>
+  <h1>올림픽파크 포레온 실거래가</h1>
+  <p class="meta" id="meta"></p>
+
+  <div class="stats" id="stats"></div>
+
+  <section>
+    <h2>평형별 매매 가격</h2>
+    <div class="legend">
+      <span><span class="lg-range"></span>최저~최고</span>
+      <span><span class="lg-med"></span>중간값</span>
+      <span><span class="lg-last"></span>가장 최근 거래</span>
+    </div>
+    <div class="panel scroll"><table id="sale"></table></div>
+  </section>
+
+  <section>
+    <h2 id="rent-h">평형별 전세 (최근 6개월)</h2>
+    <div class="panel scroll"><table id="rent"></table></div>
+  </section>
+
+  <section>
+    <h2>최근 매매 거래</h2>
+    <div class="panel scroll"><table id="recent"></table></div>
+  </section>
+
+  <ul class="notes">
+    <li>자료: 국토교통부 실거래가 공개시스템(공공데이터포털 API), 계약일 기준. 계약 해제된 거래는 뺐어요.</li>
+    <li>평형은 공급면적 ÷ 3.3058로 계산한 참고값이에요. 공급면적은 분양 정보 사이트 자료이며 공식 공고문과 맞춰 보지 않았어요.</li>
+    <li>계약 후 30일 안에 신고하기 때문에 최근 한 달 거래는 덜 잡혀 있을 수 있어요. 지난 거래 기록이며 현재 매물 가격과 다를 수 있어요.</li>
+  </ul>
+</div>
+
+<script>
+const D = {"updated": "2026-11-27 22:22", "source": "국토교통부 실거래가 공개시스템 (공공데이터포털 API)", "from": "2024-12-11", "to": "2026-11-20", "rentFrom": "2026-05", "nTrades": 145, "nCancel": 6, "nRents": 1716, "types": [{"k": 29, "supply": 46.21, "pyeong": 14, "n": 11, "last": {"d": "2026-11-14", "area": 29.97, "price": 122500, "floor": "32", "dong": "", "kind": "중개거래", "cancel": false}, "median": 116000, "min": 85121, "max": 122500, "first": "2024-12-24", "rentN": 26, "jeonseN": 23, "wolseN": 3, "jeonseMedian": 21000}, {"k": 39, "supply": 62.24, "pyeong": 19, "n": 49, "last": {"d": "2026-11-18", "area": 39.95, "price": 182000, "floor": "14", "dong": "", "kind": "중개거래", "cancel": false}, "median": 169000, "min": 112000, "max": 182000, "first": "2025-03-14", "rentN": 113, "jeonseN": 69, "wolseN": 44, "jeonseMedian": 63000}, {"k": 49, "supply": 75.9, "pyeong": 23, "n": 3, "last": {"d": "2026-04-23", "area": 49.95, "price": 197000, "floor": "31", "dong": "201", "kind": "중개거래", "cancel": false}, "median": 197000, "min": 162000, "max": 205000, "first": "2024-12-18", "rentN": 33, "jeonseN": 16, "wolseN": 17, "jeonseMedian": 65500}, {"k": 59, "supply": 85.28, "pyeong": 26, "n": 9, "last": {"d": "2026-11-02", "area": 59.96, "price": 248000, "floor": "21", "dong": "", "kind": "중개거래", "cancel": false}, "median": 248000, "min": 180000, "max": 263000, "first": "2024-12-23", "rentN": 52, "jeonseN": 21, "wolseN": 31, "jeonseMedian": 84000}, {"k": 84, "supply": 112.69, "pyeong": 34, "n": 58, "last": {"d": "2026-11-13", "area": 84.99, "price": 295000, "floor": "16", "dong": "", "kind": "중개거래", "cancel": false}, "median": 280500, "min": 212100, "max": 320000, "first": "2024-12-23", "rentN": 252, "jeonseN": 138, "wolseN": 114, "jeonseMedian": 99750}, {"k": 95, "supply": 125.41, "pyeong": 38, "n": 6, "last": {"d": "2026-10-24", "area": 95.97, "price": 310000, "floor": "24", "dong": "", "kind": "중개거래", "cancel": false}, "median": 303500, "min": 250000, "max": 319000, "first": "2026-04-15", "rentN": 34, "jeonseN": 20, "wolseN": 14, "jeonseMedian": 108075}, {"k": 109, "supply": 143.01, "pyeong": 43, "n": 7, "last": {"d": "2026-11-20", "area": 109.98, "price": 348000, "floor": "4", "dong": "", "kind": "중개거래", "cancel": false}, "median": 334000, "min": 306000, "max": 357500, "first": "2026-04-22", "rentN": 56, "jeonseN": 32, "wolseN": 24, "jeonseMedian": 130500}, {"k": 134, "supply": 165.46, "pyeong": 50, "n": 2, "last": {"d": "2026-10-21", "area": 134.97, "price": 390000, "floor": "11", "dong": "", "kind": "중개거래", "cancel": false}, "median": 380000, "min": 370000, "max": 390000, "first": "2026-05-22", "rentN": 6, "jeonseN": 5, "wolseN": 1, "jeonseMedian": 180000}], "recent": [{"d": "2026-11-20", "area": 109.98, "price": 348000, "floor": "4", "dong": "", "kind": "중개거래", "cancel": false}, {"d": "2026-11-18", "area": 39.95, "price": 182000, "floor": "14", "dong": "", "kind": "중개거래", "cancel": false}, {"d": "2026-11-14", "area": 29.97, "price": 122500, "floor": "32", "dong": "", "kind": "중개거래", "cancel": false}, {"d": "2026-11-13", "area": 84.99, "price": 295000, "floor": "16", "dong": "", "kind": "중개거래", "cancel": false}, {"d": "2026-11-11", "area": 84.99, "price": 280000, "floor": "18", "dong": "", "kind": "중개거래", "cancel": false}, {"d": "2026-11-03", "area": 84.99, "price": 280000, "floor": "30", "dong": "", "kind": "중개거래", "cancel": false}, {"d": "2026-11-02", "area": 59.96, "price": 248000, "floor": "21", "dong": "", "kind": "중개거래", "cancel": false}, {"d": "2026-11-01", "area": 84.99, "price": 319000, "floor": "10", "dong": "", "kind": "중개거래", "cancel": false}, {"d": "2026-10-30", "area": 84.99, "price": 279000, "floor": "11", "dong": "", "kind": "중개거래", "cancel": false}, {"d": "2026-10-29", "area": 84.99, "price": 277000, "floor": "23", "dong": "", "kind": "중개거래", "cancel": false}, {"d": "2026-10-24", "area": 84.98, "price": 299000, "floor": "34", "dong": "", "kind": "중개거래", "cancel": false}, {"d": "2026-10-24", "area": 95.97, "price": 310000, "floor": "24", "dong": "", "kind": "중개거래", "cancel": false}]};
+const won = v => { if (v == null) return "-"; const e = Math.floor(v / 10000), m = v % 10000; return (e ? e + "억" : "") + (m ? (e ? " " : "") + m.toLocaleString() + "만" : ""); };
+const ko = d => { const [y, m, dd] = d.split("-"); return `${y}.${m}.${dd}`; };
+document.getElementById("meta").textContent =
+  `${ko(D.from)} ~ ${ko(D.to)} 계약분 · 데이터 받은 시각 ${D.updated}`;
+
+const withSale = D.types.filter(t => t.n);
+const top = withSale.reduce((a, b) => (b.n > a.n ? b : a));
+document.getElementById("stats").innerHTML = [
+  ["매매 거래", `${D.nTrades}건`],
+  ["거래 가장 많은 평형", `${top.pyeong}평형 ${top.n}건`],
+  [`${top.pyeong}평형 중간값`, won(top.median)],
+  ["전월세 거래", `${D.nRents.toLocaleString()}건`],
+].map(([k, v]) => `<div class="stat"><div class="k">${k}</div><div class="v">${v}</div></div>`).join("");
+
+// 막대 축: 전체 최저~최고를 1억 단위로 넓힘
+const lo = Math.floor(Math.min(...withSale.map(t => t.min)) / 10000) * 10000;
+const hi = Math.ceil(Math.max(...withSale.map(t => t.max)) / 10000) * 10000;
+const P = v => ((v - lo) / (hi - lo) * 100).toFixed(2) + "%";
+const W = (a, b) => ((b - a) / (hi - lo) * 100).toFixed(2) + "%";
+const typeCell = t => `<td class="type"><b>${t.pyeong}평형</b><small>전용 ${t.k}㎡ · 공급 ${t.supply}㎡</small></td>`;
+
+document.getElementById("sale").innerHTML =
+  `<thead><tr><th>평형</th><th class="num">거래</th><th class="num">최근 거래가</th><th class="num">중간값</th><th class="num">최저 ~ 최고</th>
+   <th class="barcell"><div class="axis"><span>${lo / 10000}억</span><span>${hi / 10000}억</span></div></th></tr></thead><tbody>` +
+  D.types.map(t => !t.n
+    ? `<tr>${typeCell(t)}<td class="num">0건</td><td colspan="4" class="sub">신고된 매매 없음</td></tr>`
+    : `<tr>${typeCell(t)}
+      <td class="num">${t.n}건${t.n < 5 ? '<span class="few">적음</span>' : ""}</td>
+      <td class="num"><span class="price">${won(t.last.price)}</span><span class="sub">${ko(t.last.d)} · ${t.last.floor}층</span></td>
+      <td class="num">${won(t.median)}</td>
+      <td class="num">${won(t.min)} ~ ${won(t.max)}</td>
+      <td class="barcell"><div class="bar" title="최저 ${won(t.min)} · 중간 ${won(t.median)} · 최고 ${won(t.max)} · 최근 ${won(t.last.price)}">
+        <div class="track"></div>
+        <div class="range" style="left:${P(t.min)};width:${W(t.min, t.max)}"></div>
+        <div class="med" style="left:${P(t.median)}"></div>
+        <div class="last" style="left:${P(t.last.price)}"></div>
+      </div></td></tr>`).join("") + "</tbody>";
+
+const [ry, rm] = D.rentFrom.split("-").map(Number);
+const [sy, sm] = rm === 12 ? [ry + 1, 1] : [ry, rm + 1];
+document.getElementById("rent-h").textContent = `평형별 전세·월세 (${sy}년 ${sm}월 이후 최근 6개월)`;
+document.getElementById("rent").innerHTML =
+  `<thead><tr><th>평형</th><th class="num">전세</th><th class="num">월세</th><th class="num">전세 보증금 중간값</th><th class="num">매매 중간값 대비</th></tr></thead><tbody>` +
+  D.types.map(t => `<tr>${typeCell(t)}<td class="num">${t.jeonseN}건</td><td class="num">${t.wolseN}건</td>
+    <td class="num price">${won(t.jeonseMedian)}</td>
+    <td class="num">${t.jeonseMedian && t.median ? Math.round(t.jeonseMedian / t.median * 100) + "%" : "-"}</td></tr>`).join("") + "</tbody>";
+
+const typeOf = a => D.types.find(t => t.k === Math.floor(a));
+document.getElementById("recent").innerHTML =
+  `<thead><tr><th>계약일</th><th>평형</th><th>전용면적</th><th>층</th><th class="num">거래가</th><th>구분</th></tr></thead><tbody>` +
+  D.recent.map(r => `<tr><td>${ko(r.d)}</td><td>${typeOf(r.area) ? typeOf(r.area).pyeong + "평형" : "-"}</td><td>${r.area}㎡</td><td>${r.floor}층</td>
+    <td class="num price">${won(r.price)}</td><td>${r.kind || ""}</td></tr>`).join("") + "</tbody>";
+</script>
