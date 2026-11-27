@@ -197,7 +197,11 @@ table.rt tr.cancel td { color: var(--muted); text-decoration: line-through; }
   .apt-pin .halo { animation: pulse 2.4s ease-out infinite; }
   @keyframes pulse { 0% { transform: scale(.5); opacity: .45; } 100% { transform: scale(1.3); opacity: 0; } }
 }
-@media (max-width: 560px) { #leaflet-map { height: 280px; } }
+@media (max-width: 560px) { #leaflet-map, #office-map { height: 280px; } }
+#office-map { height: 300px; width: 100%; background: var(--sky); font-family: var(--font-body); }
+.rt-panel .map { margin-top: 10px; }
+.apt-pin .pin.office { width: 48px; height: 58px; cursor: default; }
+.office-tip { font-family: var(--font-body); font-size: .8rem; line-height: 1.4; text-align: center; border-radius: 8px; }
 .map-pop { position: absolute; z-index: 1100; width: min(300px, calc(100% - 16px)); background: var(--surface); border: 1.5px solid var(--leaf); border-radius: 14px; padding: 12px 14px; box-shadow: 0 8px 24px rgb(0 0 0 / .15); font-size: .85rem; }
 .map-pop h4 { margin: 0; font-family: var(--font-display); font-weight: 400; font-size: 1.1rem; }
 .map-pop .mp-sub { color: var(--muted); font-size: .78rem; font-variant-numeric: tabular-nums; }
@@ -366,6 +370,16 @@ footer strong { color: var(--ink); font-family: var(--font-display); font-weight
         </div>
         <div class="table-box" id="rt-table"></div>
       </div>
+      <div class="rt-panel">
+        <h3>단지 위치</h3>
+        <div class="map" id="area-map">
+          <div id="leaflet-map" aria-label="올림픽파크 포레온 주변 지도"></div>
+          <div class="map-pop" id="map-pop" hidden></div>
+        </div>
+        <p class="map-note">아파트 표시에 마우스를 올리거나 누르면 실거래가를 볼 수 있어요. 지도는 끌어서 옮기고 +, − 버튼으로 확대해요.
+          <a href="https://map.kakao.com/?q=%EC%98%AC%EB%A6%BC%ED%94%BD%ED%8C%8C%ED%81%AC%ED%8F%AC%EB%A0%88%EC%98%A8" target="_blank" rel="noopener">카카오맵</a> ·
+          <a href="https://map.naver.com/p/search/%EC%98%AC%EB%A6%BC%ED%94%BD%ED%8C%8C%ED%81%AC%ED%8F%AC%EB%A0%88%EC%98%A8" target="_blank" rel="noopener">네이버 지도</a>에서 보기</p>
+      </div>
       <p class="rt-note">계약일 기준이며, 계약 후 30일 안에 신고되기 때문에 최근 한 달 거래는 덜 보일 수 있어요. 계약이 해제된 거래는 줄을 그어 표시하고 그래프와 요약에서는 뺐어요. 위 가격은 지난 거래 기록이며 현재 매물 가격과 다를 수 있어요.</p>
     </div>
   </section>
@@ -437,13 +451,10 @@ footer strong { color: var(--ink); font-family: var(--font-display); font-weight
             <dt>주소</dt><dd>경기도 안양시 동안구 관평로212번길 21, 상가 1층 101호</dd>
             <dt>영업시간</dt><dd>평일 09:30–19:00<br>토요일 10:00–17:00 (일요일 예약 상담)</dd>
           </dl>
-          <div class="map" id="area-map">
-            <div id="leaflet-map" aria-label="올림픽파크 포레온 주변 지도"></div>
-            <div class="map-pop" id="map-pop" hidden></div>
-          </div>
-          <p class="map-note">아파트 표시에 마우스를 올리거나 누르면 실거래가를 볼 수 있어요. 지도는 끌어서 옮기고 +, − 버튼으로 확대해요.
-            <a href="https://map.kakao.com/?q=%EC%98%AC%EB%A6%BC%ED%94%BD%ED%8C%8C%ED%81%AC%ED%8F%AC%EB%A0%88%EC%98%A8" target="_blank" rel="noopener">카카오맵</a> ·
-            <a href="https://map.naver.com/p/search/%EC%98%AC%EB%A6%BC%ED%94%BD%ED%8C%8C%ED%81%AC%ED%8F%AC%EB%A0%88%EC%98%A8" target="_blank" rel="noopener">네이버 지도</a>에서 보기</p>
+          <div class="map office-map"><div id="office-map" aria-label="하연이 부동산 사무소 위치 지도"></div></div>
+          <p class="map-note">주소 기준 위치예요. 상가 출입구는 단지 안내를 확인해 주세요.
+            <a href="https://map.kakao.com/?q=%EA%B2%BD%EA%B8%B0%EB%8F%84%20%EC%95%88%EC%96%91%EC%8B%9C%20%EB%8F%99%EC%95%88%EA%B5%AC%20%EA%B4%80%ED%8F%89%EB%A1%9C212%EB%B2%88%EA%B8%B8%2021" target="_blank" rel="noopener">카카오맵</a> ·
+            <a href="https://map.naver.com/p/search/%EA%B2%BD%EA%B8%B0%EB%8F%84%20%EC%95%88%EC%96%91%EC%8B%9C%20%EB%8F%99%EC%95%88%EA%B5%AC%20%EA%B4%80%ED%8F%89%EB%A1%9C212%EB%B2%88%EA%B8%B8%2021" target="_blank" rel="noopener">네이버 지도</a>에서 길찾기</p>
         </div>
         <form id="consult" novalidate>
           <div class="row">
@@ -478,37 +489,63 @@ footer strong { color: var(--ink); font-family: var(--font-display); font-weight
 <script src="prices_data.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js" integrity="sha384-NElt3Op+9NBMCYaef5HxeJmU4Xeard/Lku8ek6hoPTvYkQPh3zLIrJP7KiRocsxO" crossorigin="anonymous"></script>
 <script>
-/* ---------- 오시는 길 지도 (오픈스트리트맵, 지도 조각은 tiles 폴더에 저장) ---------- */
+/* ---------- 지도 (오픈스트리트맵, 지도 조각은 tiles 폴더에 저장) ---------- */
 (function () {
-  const el = document.getElementById("leaflet-map");
-  if (!el || !window.L) { if (el) el.innerHTML = '<p class="empty">지도를 불러오지 못했어요. 아래 카카오맵·네이버 지도 링크를 이용해 주세요.</p>'; return; }
-  const FOREON = [37.5240, 127.1395];                       // 올림픽파크 포레온 단지 가운데
-  // 저장해 둔 지도 범위: 가까이(15~17단계)는 포레온 주변, 멀리(12~14단계)는 송파·강동 일대
-  const NEAR = [[37.5135, 127.1270], [37.5320, 127.1520]];
-  const WIDE = [[37.4900, 127.0750], [37.5600, 127.2000]];
-  const map = L.map(el, { center: FOREON, zoom: 15, minZoom: 12, maxZoom: 17, maxBounds: WIDE, maxBoundsViscosity: 1, scrollWheelZoom: false, zoomControl: false });
-  L.control.zoom({ position: "bottomright", zoomInTitle: "확대", zoomOutTitle: "축소" }).addTo(map);
   const attribution = '지도 © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> 기여자';
-  L.tileLayer("tiles/{z}/{x}/{y}.png", { minZoom: 12, maxZoom: 14, bounds: WIDE, attribution }).addTo(map);
-  L.tileLayer("tiles/{z}/{x}/{y}.png", { minZoom: 15, maxZoom: 17, maxNativeZoom: 16, bounds: NEAR, attribution }).addTo(map);
-  // 가까이 볼 때는 지도 조각이 있는 포레온 주변까지만 움직이게
-  const fitBounds = () => {
-    const near = map.getZoom() >= 15;
-    map.setMaxBounds(near ? NEAR : WIDE);
-    if (near && !L.latLngBounds(NEAR).contains(map.getCenter())) map.panTo(FOREON, { animate: false });
-  };
-  map.on("zoomend", fitBounds);
-  map.attributionControl.setPrefix(false);
-  const html = `<div class="pin" id="map-pin" tabindex="0" role="button" aria-label="올림픽파크 포레온 실거래가 보기" aria-expanded="false">
+  // 지도 하나 만들기: 멀리(12~14단계)는 wide 범위, 가까이(15~17단계)는 near 범위의 지도 조각을 씀
+  function makeMap(el, { center, near, wide, nearNativeMax }) {
+    const map = L.map(el, { center, zoom: 15, minZoom: 12, maxZoom: 17, maxBounds: wide, maxBoundsViscosity: 1, scrollWheelZoom: false, zoomControl: false });
+    L.control.zoom({ position: "bottomright", zoomInTitle: "확대", zoomOutTitle: "축소" }).addTo(map);
+    L.tileLayer("tiles/{z}/{x}/{y}.png", { minZoom: 12, maxZoom: 14, bounds: wide, attribution }).addTo(map);
+    L.tileLayer("tiles/{z}/{x}/{y}.png", { minZoom: 15, maxZoom: 17, maxNativeZoom: nearNativeMax, bounds: near, attribution }).addTo(map);
+    map.attributionControl.setPrefix(false);
+    // 가까이 볼 때는 지도 조각이 있는 범위까지만 움직이게
+    map.on("zoomend", () => {
+      const isNear = map.getZoom() >= 15;
+      map.setMaxBounds(isNear ? near : wide);
+      if (isNear && !L.latLngBounds(near).contains(map.getCenter())) map.panTo(center, { animate: false });
+    });
+    window.addEventListener("load", () => map.invalidateSize());
+    return map;
+  }
+  const fail = el => { if (el) el.innerHTML = '<p class="empty">지도를 불러오지 못했어요. 아래 카카오맵·네이버 지도 링크를 이용해 주세요.</p>'; };
+
+  // 1) 오시는 길: 사무소 (경기도 안양시 동안구 관평로212번길 21)
+  const officeEl = document.getElementById("office-map");
+  if (officeEl && window.L) {
+    const OFFICE = [37.39717, 126.95863];
+    const map = makeMap(officeEl, {
+      center: OFFICE, nearNativeMax: 17,
+      near: [[37.3932, 126.9536], [37.4012, 126.9636]],
+      wide: [[37.3670, 126.9180], [37.4270, 126.9990]],
+    });
+    map.setZoom(16);
+    const html = `<div class="pin office" aria-hidden="true"><span class="halo"></span>
+      <svg width="48" height="58" viewBox="0 0 48 58"><path class="body" d="M24 56 C24 56 4 36 4 22 a20 20 0 0 1 40 0 C44 36 24 56 24 56Z" fill="var(--sun)" stroke="#fff" stroke-width="3"/>
+      <path d="M13 23 L24 13 L35 23 V33 a2 2 0 0 1-2 2 H15 a2 2 0 0 1-2-2Z" fill="#fff"/><rect x="21" y="25" width="6" height="10" rx="3" fill="var(--leaf)"/></svg></div>`;
+    L.marker(OFFICE, { icon: L.divIcon({ className: "apt-pin", html, iconSize: [48, 58], iconAnchor: [24, 56] }), keyboard: false, title: "하연이 부동산" })
+      .addTo(map)
+      .bindTooltip("<b>하연이 부동산</b><br>관평로212번길 21, 상가 1층 101호", { permanent: true, direction: "top", offset: [0, -54], className: "office-tip" });
+  } else fail(officeEl);
+
+  // 2) 실거래가: 올림픽파크 포레온 (아파트 표시에 마우스를 올리면 실거래가 창)
+  const foreonEl = document.getElementById("leaflet-map");
+  if (foreonEl && window.L) {
+    const FOREON = [37.5240, 127.1395];
+    const map = makeMap(foreonEl, {
+      center: FOREON, nearNativeMax: 16,
+      near: [[37.5135, 127.1270], [37.5320, 127.1520]],
+      wide: [[37.4900, 127.0750], [37.5600, 127.2000]],
+    });
+    const html = `<div class="pin" id="map-pin" tabindex="0" role="button" aria-label="올림픽파크 포레온 실거래가 보기" aria-expanded="false">
       <span class="halo"></span>
       <svg width="56" height="64" viewBox="0 0 56 64" aria-hidden="true">
         <path class="body" d="M28 62 L18 50 H8 a6 6 0 0 1-6-6 V8 a6 6 0 0 1 6-6 H48 a6 6 0 0 1 6 6 V44 a6 6 0 0 1-6 6 H38 Z" fill="var(--leaf)" stroke="#fff" stroke-width="3"/>
         <rect x="11" y="13" width="10" height="31" rx="1.5" fill="#fff"/><rect x="23" y="8" width="10" height="36" rx="1.5" fill="#fff"/><rect x="35" y="17" width="10" height="27" rx="1.5" fill="#fff"/>
         <g fill="var(--sun)"><rect x="13.5" y="17" width="5" height="4"/><rect x="13.5" y="26" width="5" height="4"/><rect x="25.5" y="12" width="5" height="4"/><rect x="25.5" y="21" width="5" height="4"/><rect x="25.5" y="30" width="5" height="4"/><rect x="37.5" y="21" width="5" height="4"/><rect x="37.5" y="30" width="5" height="4"/></g>
       </svg></div>`;
-  L.marker(FOREON, { icon: L.divIcon({ className: "apt-pin", html, iconSize: [56, 64], iconAnchor: [28, 62] }), keyboard: false }).addTo(map);
-  // 지도를 처음 그릴 때 영역 크기가 바뀌면 다시 맞춤
-  window.addEventListener("load", () => map.invalidateSize());
+    L.marker(FOREON, { icon: L.divIcon({ className: "apt-pin", html, iconSize: [56, 64], iconAnchor: [28, 62] }), keyboard: false }).addTo(map);
+  } else fail(foreonEl);
 })();
 </script>
 <script>

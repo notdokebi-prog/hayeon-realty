@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>하연이 부동산 게시판</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@400;500;700&display=swap">
+<style>
+:root { --bg:#F6FAF8; --surface:#fff; --ink:#1F3330; --muted:#5B706C; --line:#DCE8E4; --leaf:#2E8C74; --leaf-soft:#E1F2EC; --sun:#FFC94A; --sun-ink:#4A3600;
+  --font-display:"Jua","Malgun Gothic",sans-serif; --font-body:"Noto Sans KR","Malgun Gothic",sans-serif; }
+@media (prefers-color-scheme: dark) { :root { --bg:#101A18; --surface:#172321; --ink:#E6F0ED; --muted:#9DB2AD; --line:#2A3B38; --leaf:#5CC4A6; --leaf-soft:#1D3631; --sun:#FFD36B; --sun-ink:#2A1F00; color-scheme:dark; } }
+* { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--ink); font-family:var(--font-body); line-height:1.7; word-break:keep-all; }
+.wrap { max-width:760px; margin:0 auto; padding:32px max(16px, env(safe-area-inset-left,0px)) 56px; }
+h1 { font-family:var(--font-display); font-weight:400; font-size:2rem; margin:0; }
+a { color:var(--leaf); }
+.sub { color:var(--muted); margin:4px 0 24px; }
+.card { background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:20px; }
+form { display:grid; gap:12px; margin-bottom:28px; }
+label { display:grid; gap:4px; font-size:.9rem; font-weight:500; }
+input, textarea { font:inherit; padding:10px 12px; border:1.5px solid var(--line); border-radius:10px; background:var(--bg); color:var(--ink); }
+textarea { min-height:110px; resize:vertical; }
+button { font:inherit; font-weight:700; background:var(--leaf); color:var(--surface); border:0; border-radius:999px; padding:11px 22px; cursor:pointer; justify-self:start; }
+button:disabled { opacity:.5; cursor:wait; }
+.msg { font-size:.9rem; color:var(--leaf); font-weight:700; min-height:1.4em; }
+.notice { background:var(--sun); color:var(--sun-ink); border-radius:12px; padding:12px 16px; font-weight:700; margin-bottom:20px; }
+.posts { display:grid; gap:12px; }
+.post h2 { font-size:1.1rem; margin:0 0 4px; }
+.post .meta { color:var(--muted); font-size:.82rem; margin-bottom:8px; }
+.post p { margin:0; white-space:pre-wrap; }
+.empty { color:var(--muted); text-align:center; padding:24px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p><a href="index.html">← 하연이 부동산 홈으로</a></p>
+  <h1>하연이 부동산 게시판</h1>
+  <p class="sub">집 구하며 궁금한 점, 동네 이야기를 편하게 남겨 주세요. 전화번호 같은 개인정보는 적지 마세요.</p>
+
+  <p class="notice" id="notice" hidden>게시판 연결 설정이 아직 없어요. board.html 위쪽의 SUPABASE_URL과 SUPABASE_ANON_KEY를 채워 주세요.</p>
+
+  <form class="card" id="write">
+    <label for="author">이름<input id="author" maxlength="20" required placeholder="예: 둔촌동 주민"></label>
+    <label for="title">제목<input id="title" maxlength="80" required></label>
+    <label for="body">내용<textarea id="body" maxlength="2000" required></textarea></label>
+    <button type="submit" id="submit">글 올리기</button>
+    <p class="msg" id="msg" role="status"></p>
+  </form>
+
+  <div class="posts" id="posts"><p class="empty">글을 불러오는 중이에요...</p></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js" integrity="sha384-0w2KAL2YHP6wKOkUDzkCDGgVvfmHnj02DHeQ6XcHOgTfFsGyonKOpShMH1x6nk9o" crossorigin="anonymous"></script>
+<script>
+// ---- Supabase 연결 설정 (Project Settings > API 에서 복사) ----
+// anon(public) 키는 웹페이지에 넣도록 만들어진 공개용 키예요. service_role 키는 절대 넣지 마세요.
+const SUPABASE_URL = "";
+const SUPABASE_ANON_KEY = "";
+// ---------------------------------------------------------------
+
+const $ = id => document.getElementById(id);
+const ready = SUPABASE_URL && SUPABASE_ANON_KEY && window.supabase;
+const db = ready ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+
+function render(rows) {
+  const box = $("posts");
+  box.replaceChildren();
+  if (!rows.length) { box.innerHTML = '<p class="empty">아직 글이 없어요. 첫 글을 남겨 주세요.</p>'; return; }
+  for (const r of rows) {
+    const art = document.createElement("article"); art.className = "card post";
+    const h = document.createElement("h2"); h.textContent = r.title;
+    const m = document.createElement("div"); m.className = "meta";
+    m.textContent = `${r.author} · ${new Date(r.created_at).toLocaleString("ko-KR", { dateStyle: "medium", timeStyle: "short" })}`;
+    const p = document.createElement("p"); p.textContent = r.body;
+    art.append(h, m, p); box.append(art);
+  }
+}
+
+async function load() {
+  if (!db) { $("notice").hidden = false; $("posts").innerHTML = '<p class="empty">연결 설정 후 글이 여기에 보여요.</p>'; return; }
+  const { data, error } = await db.from("board_posts").select("id, created_at, author, title, body").order("created_at", { ascending: false }).limit(50);
+  if (error) { $("posts").innerHTML = '<p class="empty">글을 불러오지 못했어요. 잠시 뒤 새로고침해 주세요.</p>'; return; }
+  render(data);
+}
+
+$("write").addEventListener("submit", async e => {
+  e.preventDefault();
+  if (!db) { $("msg").textContent = "게시판 연결 설정이 아직 없어요."; return; }
+  const row = { author: $("author").value.trim(), title: $("title").value.trim(), body: $("body").value.trim() };
+  if (!row.author || !row.title || !row.body) { $("msg").textContent = "이름, 제목, 내용을 모두 적어 주세요."; return; }
+  $("submit").disabled = true; $("msg").textContent = "올리는 중...";
+  const { error } = await db.from("board_posts").insert(row);
+  $("submit").disabled = false;
+  if (error) { $("msg").textContent = "글을 올리지 못했어요. 잠시 뒤 다시 해 보세요."; return; }
+  $("msg").textContent = "글이 올라갔어요.";
+  $("title").value = ""; $("body").value = "";
+  load();
+});
+
+load();
+</script>
+</body>
+</html>
