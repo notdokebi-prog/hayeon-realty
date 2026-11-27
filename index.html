@@ -154,6 +154,10 @@ table.rt th.num { text-align: right; }
 table.rt tr.cancel td { color: var(--muted); text-decoration: line-through; }
 .pill { font-size: .75rem; padding: 1px 8px; border-radius: 999px; background: var(--leaf-soft); color: var(--leaf); text-decoration: none; display: inline-block; }
 .rt-note { margin-top: 14px; font-size: .85rem; color: var(--muted); }
+.rt-panel.asking { margin-bottom: 20px; }
+.rt-panel.asking .rt-note { margin-top: 10px; }
+.badge-ref { font-family: var(--font-body); font-size: .72rem; font-weight: 700; vertical-align: middle; padding: 2px 8px; border-radius: 999px; background: var(--sun); color: var(--sun-ink); margin-left: 6px; }
+table.rt td .sub { display: block; color: var(--muted); font-size: .75rem; }
 
 /* why */
 .why { background: var(--surface); border-block: 1px solid var(--line); }
@@ -343,6 +347,12 @@ footer strong { color: var(--ink); font-family: var(--font-display); font-weight
       </div>
       <div class="rt-tiles" id="rt-tiles"></div>
       <p class="rt-note" id="rt-unit-note" style="margin:-6px 0 18px">평형은 공급면적 ÷ 3.3058로 계산한 참고값이에요. 실거래 신고 자료에는 전용면적만 있어요.</p>
+      <div class="rt-panel asking">
+        <h3>지금 부르는 가격 (호가) <span class="badge-ref">시세 참고</span></h3>
+        <p class="rt-sel" id="rt-asking-meta"></p>
+        <div class="table-box" id="rt-asking"></div>
+        <p class="rt-note">부동산 포털에 등록된 매물의 호가를 모은 시세 참고 정보예요. <b>하연이 부동산의 매물이 아니며</b>, 확인한 날짜 기준 일부 매물만 반영해서 실제 거래 가격과 다를 수 있어요.</p>
+      </div>
       <div class="rt-panel">
         <h3>평형별 매매 거래가 흐름</h3>
         <p class="rt-sel" style="margin-top:4px">보고 싶은 평형을 눌러 고르세요. 여러 개를 함께 고를 수 있어요.</p>
@@ -621,6 +631,41 @@ footer strong { color: var(--ink); font-family: var(--font-display); font-weight
   const isAll = () => selected.size === ALL.length;
   const only = k => selected.size === 1 && selected.has(k);
 
+  // ---- 현재 호가 (포털 등록 매물의 부르는 가격을 모은 시세 참고. 다른 사무소 이름·사진·문구는 쓰지 않음) ----
+  // 바꿀 때: 아래 숫자만 고치면 됨. 가격 단위는 만원, 월세는 [보증금, 월세].
+  const ASKING = {
+    checked: "2026년 11월 19일~27일",
+    rows: [
+      { k: 39, deal: "매매", prices: [160000, 160000, 160000, 160000] },
+      { k: 39, deal: "전세", prices: [50000, 50000, 50000, 50000] },
+      { k: 39, deal: "월세", wolse: [[10000, 275], [10000, 275], [40000, 170]], n: 2 },
+      { k: 29, deal: "월세", wolse: [[20000, 160], [20000, 170]] },
+    ],
+  };
+  const fmtWolse = ([d, m]) => `${won(d)}/${m}`;
+  function asking() {
+    $("rt-asking-meta").textContent = `${ASKING.checked} 포털에서 확인된 매물 기준 · 실거래가와 비교해 보세요`;
+    const lastRent = (k, monthly) => data.rents.find(r => typeOf(r.area) && typeOf(r.area).k === k && (monthly ? r.monthly > 0 : r.monthly === 0));
+    const rows = ASKING.rows.map(a => {
+      const ty = TYPES.find(t => t.k === a.k);
+      let ask, n, real = null;
+      if (a.deal === "월세") {
+        const sorted = a.wolse.slice().sort((x, y) => x[0] - y[0]);
+        const lo = fmtWolse(sorted[0]), hi = fmtWolse(sorted[sorted.length - 1]);
+        ask = lo === hi ? lo : `${lo} ~ ${hi}`; n = a.n || a.wolse.length;
+        const r = lastRent(a.k, true); if (r) real = { text: fmtWolse([r.deposit, r.monthly]), d: r.d };
+      } else {
+        const lo = Math.min(...a.prices), hi = Math.max(...a.prices);
+        ask = lo === hi ? won(lo) : `${won(lo)} ~ ${won(hi)}`; n = a.prices.length;
+        if (a.deal === "매매") { const t = valid.find(t => typeOf(t.area) === ty); if (t) real = { text: won(t.price), d: t.d }; }
+        else { const r = lastRent(a.k, false); if (r) real = { text: won(r.deposit), d: r.d }; }
+      }
+      return `<tr><td>${typeName(ty)}</td><td>${a.deal}</td><td class="num"><b>${ask}</b></td><td class="num">${n}건</td>
+        <td class="num">${real ? `${real.text}<span class="sub">${real.d}</span>` : "-"}</td></tr>`;
+    });
+    $("rt-asking").innerHTML = `<table class="rt"><thead><tr><th>평형</th><th>거래</th><th class="num">호가</th><th class="num">매물</th><th class="num">최근 실거래</th></tr></thead><tbody>${rows.join("")}</tbody></table>`;
+  }
+
   function tiles() {
     $("rt-tiles").innerHTML = TYPES.map(ty => {
       const list = valid.filter(t => typeOf(t.area) === ty), last = list[0];
@@ -766,7 +811,7 @@ footer strong { color: var(--ink); font-family: var(--font-display); font-weight
   function renderAll() {
     document.querySelectorAll(".rt-unit .chip").forEach(c => c.setAttribute("aria-pressed", c.dataset.u === unit));
     $("rt-unit-note").hidden = unit !== "py";
-    tiles(); picker(); rangeUi(); chart(); table();
+    tiles(); asking(); picker(); rangeUi(); chart(); table();
   }
 
   // ---- 기간 조절 막대: 손잡이를 끌어 시작/끝 달을 정하고, 가운데를 끌어 기간을 옮김 ----
