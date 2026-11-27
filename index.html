@@ -768,7 +768,7 @@ footer strong { color: var(--ink); font-family: var(--font-display); font-weight
       const t = best.t;
       guide.setAttribute("x1", best.x); guide.setAttribute("x2", best.x); guide.setAttribute("visibility", "visible");
       focus.setAttribute("cx", best.x); focus.setAttribute("cy", best.y); focus.setAttribute("visibility", "visible");
-      tip.innerHTML = `${dateKo(t.d)}<br><b style="font-size:1.05rem">${won(t.price)}원</b><br><span class="dot" style="background:${best.ty.color}"></span> ${typeName(best.ty)}${unit === "py" ? ` (전용 ${t.area}㎡)` : ` (${best.ty.pyeong}평형)`} · ${t.dong ? esc(t.dong) + "동 " : ""}${esc(t.floor)}층`;
+      tip.innerHTML = `${dateKo(t.d)}<br><b style="font-size:1.05rem">${won(t.price)}원</b>`;
       tip.hidden = false;
       const sb = svg.getBoundingClientRect(), scale = sb.width / W, bb = box.getBoundingClientRect();
       const px = best.x * scale + sb.left - bb.left + box.scrollLeft, pyy = best.y * scale + sb.top - bb.top;
