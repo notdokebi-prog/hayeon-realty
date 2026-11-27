@@ -11,7 +11,7 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 OUT = HERE / "_site"
 PAGES = ["index.html", "포레온_실거래가_정리.html"]
-COPY = ["prices_data.js", "tiles"]
+COPY = ["prices_data.js", "listings.js", "tiles"]
 
 # claude.ai 미리보기가 자동으로 넣어 주던 기본 스타일과 같은 내용
 BASE_CSS = """<style>

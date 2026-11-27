@@ -99,6 +99,12 @@ section { padding-block: 72px; }
 .specs dd { margin: 0; font-variant-numeric: tabular-nums; }
 .legal-note { margin-top: 18px; font-size: .85rem; color: var(--muted); }
 .empty { grid-column: 1 / -1; text-align: center; color: var(--muted); padding: 40px; }
+.empty-card { grid-column: 1 / -1; background: var(--surface); border: 1.5px dashed var(--line); border-radius: var(--radius); padding: 36px 24px; text-align: center; display: flex; flex-direction: column; gap: 8px; align-items: center; }
+.empty-card h3 { font-size: 1.4rem; }
+.empty-card p { color: var(--muted); max-width: 30em; }
+.empty-card .tel { font-family: var(--font-display); font-size: 1.5rem; color: var(--leaf); font-variant-numeric: tabular-nums; }
+.card .place { color: var(--muted); font-size: .88rem; margin-top: -6px; }
+#kind-filters { margin-top: -8px; }
 
 /* 실거래가 */
 .rt-banner { background: var(--sun); color: var(--sun-ink); border-radius: 12px; padding: 10px 16px; font-weight: 700; font-size: .92rem; margin-bottom: 18px; }
@@ -121,8 +127,10 @@ section { padding-block: 72px; }
 .rt-panel h3 { font-size: 1.2rem; }
 .rt-legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: .88rem; color: var(--muted); margin: 6px 0 10px; }
 .rt-legend span { display: inline-flex; align-items: center; gap: 6px; }
-.rt-legend .chip { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; font-size: .88rem; }
-.rt-legend .chip .cnt { color: var(--muted); font-size: .78rem; font-variant-numeric: tabular-nums; }
+.rt-legend { gap: 4px 6px; }
+.rt-legend .chip { display: inline-flex; align-items: center; gap: 4px; padding: 1px 8px; font-size: .74rem; border-width: 1px; line-height: 1.6; }
+.rt-legend .chip .dot { width: 7px; height: 7px; }
+.rt-legend .chip .cnt { color: var(--muted); font-size: .68rem; font-variant-numeric: tabular-nums; }
 .rt-legend .chip[aria-pressed="true"] .cnt { color: var(--surface); opacity: .85; }
 .rt-legend .chip[aria-pressed="true"] .dot { box-shadow: 0 0 0 2px var(--surface); }
 .rt-legend .chip:disabled { opacity: .45; cursor: not-allowed; }
@@ -267,6 +275,7 @@ footer strong { color: var(--ink); font-family: var(--font-display); font-weight
       <svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><path d="M3 6h16M3 11h16M3 16h16" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
     </button>
     <nav aria-label="주요 메뉴" id="main-nav">
+      <a href="#listings">매물</a>
       <a href="#prices">실거래가</a>
       <a href="#process">상담 과정</a>
       <a href="#about">소개</a>
@@ -311,22 +320,23 @@ footer strong { color: var(--ink); font-family: var(--font-display); font-weight
     </div>
   </div>
 
-  <!-- 추천 매물: 실제 매물이 정리될 때까지 숨김 (hidden 을 지우면 다시 보임. 예시 매물을 공개하면 허위 매물 광고가 될 수 있음) -->
-  <section id="listings" hidden>
+  <!-- 매물: listings.js 에 실제 의뢰 매물을 넣으면 보여요. 비어 있으면 '매물 준비 중' 안내. -->
+  <section id="listings">
     <div class="wrap">
       <div class="section-head">
-        <p class="eyebrow">추천 매물</p>
-        <h2>이번 주 하연이가 고른 집</h2>
+        <p class="eyebrow">매물</p>
+        <h2>하연이 부동산 매물</h2>
         <p class="sub">거래가 끝난 매물은 바로 내려요. 궁금한 집은 편하게 문의 주세요.</p>
       </div>
-      <div class="filters" role="group" aria-label="거래 형태로 보기">
+      <div class="filters" id="deal-filters" role="group" aria-label="거래 형태로 보기">
         <button class="chip" id="f-all" data-f="all" aria-pressed="true">전체</button>
         <button class="chip" id="f-sale" data-f="매매" aria-pressed="false">매매</button>
         <button class="chip" id="f-jeonse" data-f="전세" aria-pressed="false">전세</button>
         <button class="chip" id="f-monthly" data-f="월세" aria-pressed="false">월세</button>
       </div>
+      <div class="filters" id="kind-filters" role="group" aria-label="매물 종류로 보기" hidden></div>
       <div class="listings" id="list"></div>
-      <p class="legal-note">※ 위 매물은 시안용 예시입니다. 실제 게시 시 공인중개사법에 따라 소재지, 면적, 가격, 거래형태, 총 층수, 사용승인일, 방향, 방·욕실 수, 입주가능일, 주차대수, 관리비를 표시해야 합니다.</p>
+      <p class="legal-note">매물 정보는 거래 상황에 따라 바뀔 수 있어요. 방문 전에 전화로 확인해 주세요.</p>
     </div>
   </section>
 
@@ -499,6 +509,7 @@ footer strong { color: var(--ink); font-family: var(--font-display); font-weight
 </footer>
 
 <script src="prices_data.js"></script>
+<script src="listings.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js" integrity="sha384-NElt3Op+9NBMCYaef5HxeJmU4Xeard/Lku8ek6hoPTvYkQPh3zLIrJP7KiRocsxO" crossorigin="anonymous"></script>
 <script>
 /* ---------- 지도 (오픈스트리트맵, 지도 조각은 tiles 폴더에 저장) ---------- */
@@ -744,10 +755,10 @@ footer strong { color: var(--ink); font-family: var(--font-display); font-weight
       const p = list.map(t => ({ t, ty, x: X(new Date(t.d).getTime()), y: Y(t.price / 10000) }));
       pts.push(...p);
       if (p.length > 1) s += `<polyline points="${p.map(q => q.x + "," + q.y).join(" ")}" fill="none" stroke="${ty.color}" stroke-width="2" stroke-linejoin="round" stroke-opacity=".8"/>`;
-      p.forEach(q => { s += `<circle cx="${q.x}" cy="${q.y}" r="4" fill="${ty.color}" stroke="var(--surface)" stroke-width="2"/>`; });
+      p.forEach(q => { s += `<circle cx="${q.x}" cy="${q.y}" r="2.8" fill="${ty.color}" stroke="var(--surface)" stroke-width="1.2"/>`; });
     });
     s += `<line id="rt-guide" y1="${T}" y2="${H - B}" stroke="var(--ink)" stroke-opacity=".35" stroke-dasharray="3 3" visibility="hidden"/>`;
-    s += `<circle id="rt-focus" r="8" fill="none" stroke="var(--ink)" stroke-width="2" visibility="hidden"/>`;
+    s += `<circle id="rt-focus" r="6" fill="none" stroke="var(--ink)" stroke-width="2" visibility="hidden"/>`;
     s += `<rect id="rt-hit" x="${L}" y="0" width="${W - L - R}" height="${H - B}" fill="transparent" style="cursor:crosshair"/>`;
     s += `</svg><div class="tip" id="rt-tip" hidden></div>`;
     box.innerHTML = s;
@@ -936,41 +947,56 @@ footer strong { color: var(--ink); font-family: var(--font-display); font-weight
   renderAll();
 })();
 
-/* ---------- 추천 매물 ---------- */
-const items = [
-  { deal: "매매", name: "○○래미안 2단지 104동", price: "8억 2,000만", area: "전용 84.9㎡ (34평형)", floor: "12층 / 25층", dir: "남향", rooms: "방 3 · 욕실 2", movein: "2027.02 협의", approved: "2009.11", parking: "세대당 1.3대", fee: "약 28만 원" },
-  { deal: "전세", name: "○○자이 301동", price: "4억 5,000만", area: "전용 59.9㎡ (25평형)", floor: "7층 / 20층", dir: "남동향", rooms: "방 3 · 욕실 2", movein: "즉시 입주", approved: "2015.06", parking: "세대당 1.2대", fee: "약 19만 원" },
-  { deal: "월세", name: "○○e편한세상 508동", price: "보증금 5,000 / 월 120", area: "전용 74.8㎡ (30평형)", floor: "3층 / 18층", dir: "남서향", rooms: "방 3 · 욕실 2", movein: "2027.01 이후", approved: "2012.03", parking: "세대당 1.1대", fee: "약 22만 원" },
-  { deal: "매매", name: "○○푸르지오 1단지 112동", price: "6억 7,500만", area: "전용 59.9㎡ (24평형)", floor: "18층 / 29층", dir: "동향", rooms: "방 3 · 욕실 1", movein: "2027.03 협의", approved: "2018.09", parking: "세대당 1.4대", fee: "약 17만 원" },
-  { deal: "전세", name: "○○힐스테이트 205동", price: "6억", area: "전용 84.9㎡ (33평형)", floor: "21층 / 30층", dir: "남향", rooms: "방 4 · 욕실 2", movein: "2027.04 이후", approved: "2020.12", parking: "세대당 1.5대", fee: "약 26만 원" },
-  { deal: "월세", name: "○○아이파크 103동", price: "보증금 1억 / 월 85", area: "전용 59.9㎡ (25평형)", floor: "9층 / 22층", dir: "남향", rooms: "방 3 · 욕실 2", movein: "협의 가능", approved: "2016.05", parking: "세대당 1.2대", fee: "약 18만 원" },
-];
-const house = '<svg viewBox="0 0 100 80" aria-hidden="true"><rect x="12" y="20" width="34" height="60" rx="3" fill="var(--leaf)"/><rect x="52" y="8" width="36" height="72" rx="3" fill="var(--building)"/><g fill="var(--sun)"><rect x="18" y="28" width="8" height="7" rx="1"/><rect x="32" y="40" width="8" height="7" rx="1"/><rect x="18" y="54" width="8" height="7" rx="1"/><rect x="58" y="16" width="9" height="8" rx="1"/><rect x="73" y="32" width="9" height="8" rx="1"/><rect x="58" y="48" width="9" height="8" rx="1"/><rect x="73" y="62" width="9" height="8" rx="1"/></g></svg>';
-const list = document.getElementById("list");
-function render(f) {
-  const rows = items.filter(i => f === "all" || i.deal === f);
-  list.innerHTML = rows.length ? rows.map(i => `
-    <article class="card">
-      <div class="pic">${house}<span class="tag">${i.deal}</span><span class="sample">예시</span></div>
-      <div class="body">
-        <h3>${i.name}</h3>
-        <div class="price">${i.price}</div>
-        <dl class="specs">
-          <dt>면적</dt><dd>${i.area}</dd>
-          <dt>층 / 방향</dt><dd>${i.floor} · ${i.dir}</dd>
-          <dt>구조</dt><dd>${i.rooms}</dd>
-          <dt>입주</dt><dd>${i.movein}</dd>
-          <dt>사용승인</dt><dd>${i.approved}</dd>
-          <dt>주차 / 관리비</dt><dd>${i.parking} · ${i.fee}</dd>
-        </dl>
-      </div>
-    </article>`).join("") : '<p class="empty">지금은 이 조건의 매물이 없어요. 상담 신청을 남겨주시면 새로 나오는 대로 연락드릴게요.</p>';
-}
-document.querySelectorAll(".chip").forEach(b => b.addEventListener("click", () => {
-  document.querySelectorAll(".chip").forEach(c => c.setAttribute("aria-pressed", c === b));
-  render(b.dataset.f);
-}));
-render("all");
+/* ---------- 매물 (listings.js 의 window.LISTINGS) ---------- */
+(function () {
+  const esc = v => String(v ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const items = Array.isArray(window.LISTINGS) ? window.LISTINGS : [];
+  const house = '<svg viewBox="0 0 100 80" aria-hidden="true"><rect x="12" y="20" width="34" height="60" rx="3" fill="var(--leaf)"/><rect x="52" y="8" width="36" height="72" rx="3" fill="var(--building)"/><g fill="var(--sun)"><rect x="18" y="28" width="8" height="7" rx="1"/><rect x="32" y="40" width="8" height="7" rx="1"/><rect x="18" y="54" width="8" height="7" rx="1"/><rect x="58" y="16" width="9" height="8" rx="1"/><rect x="73" y="32" width="9" height="8" rx="1"/><rect x="58" y="48" width="9" height="8" rx="1"/><rect x="73" y="62" width="9" height="8" rx="1"/></g></svg>';
+  const list = document.getElementById("list");
+  const dealBox = document.getElementById("deal-filters"), kindBox = document.getElementById("kind-filters");
+  let deal = "all", kind = "all";
+
+  // 매물 종류 버튼은 실제 들어 있는 종류만 만듦
+  const kinds = [...new Set(items.map(i => i.kind).filter(Boolean))];
+  if (kinds.length > 1) {
+    kindBox.innerHTML = ['all', ...kinds].map(k => `<button class="chip" type="button" data-k="${esc(k)}" aria-pressed="${k === "all"}">${k === "all" ? "모든 종류" : esc(k)}</button>`).join("");
+    kindBox.hidden = false;
+  }
+  if (!items.length) dealBox.hidden = true;
+
+  const spec = (label, v) => v ? `<dt>${label}</dt><dd>${esc(v)}</dd>` : "";
+  function render() {
+    if (!items.length) {
+      list.innerHTML = `<div class="empty-card"><h3>매물 준비 중이에요</h3>
+        <p>지금은 홈페이지에 올린 매물이 없어요. 원하시는 조건을 알려주시면 맞는 집을 찾아 연락드릴게요.</p>
+        <p class="tel">010-2768-8957</p></div>`;
+      return;
+    }
+    const rows = items.filter(i => (deal === "all" || i.deal === deal) && (kind === "all" || i.kind === kind));
+    list.innerHTML = rows.length ? rows.map(i => `
+      <article class="card">
+        <div class="pic">${house}<span class="tag">${esc(i.deal)}${i.kind ? " · " + esc(i.kind) : ""}</span></div>
+        <div class="body">
+          <h3>${esc(i.title || i.place)}</h3>
+          ${i.title && i.place ? `<p class="place">${esc(i.place)}</p>` : ""}
+          <div class="price">${esc(i.price)}</div>
+          <dl class="specs">
+            ${spec("면적", i.area)}${spec("층", i.floor)}${spec("방향", i.dir)}${spec("구조", i.rooms)}
+            ${spec("입주", i.movein)}${spec("사용승인", i.approved)}${spec("주차", i.parking)}${spec("관리비", i.fee)}
+          </dl>
+        </div>
+      </article>`).join("") : '<p class="empty">지금은 이 조건의 매물이 없어요. 전화 주시면 새로 나오는 대로 연락드릴게요.</p>';
+  }
+  dealBox.addEventListener("click", e => {
+    const b = e.target.closest(".chip"); if (!b) return;
+    deal = b.dataset.f; dealBox.querySelectorAll(".chip").forEach(c => c.setAttribute("aria-pressed", c === b)); render();
+  });
+  kindBox.addEventListener("click", e => {
+    const b = e.target.closest(".chip"); if (!b) return;
+    kind = b.dataset.k; kindBox.querySelectorAll(".chip").forEach(c => c.setAttribute("aria-pressed", c === b)); render();
+  });
+  render();
+})();
 
 document.getElementById("consult").addEventListener("submit", e => {
   e.preventDefault();
