@@ -468,7 +468,7 @@ footer strong { color: var(--ink); font-family: var(--font-display); font-weight
         <div class="info">
           <h3 style="font-size:1.3rem">오시는 길</h3>
           <dl>
-            <dt>전화</dt><dd>010-2768-8957</dd>
+            <dt>전화</dt><dd>010-6278-8957</dd>
             <dt>주소</dt><dd>경기도 안양시 동안구 관평로212번길 21, 상가 1층 101호</dd>
             <dt>영업시간</dt><dd>평일 09:30–19:00<br>토요일 10:00–17:00 (일요일 예약 상담)</dd>
           </dl>
@@ -478,7 +478,7 @@ footer strong { color: var(--ink); font-family: var(--font-display); font-weight
             <a href="https://map.naver.com/p/search/%EA%B2%BD%EA%B8%B0%EB%8F%84%20%EC%95%88%EC%96%91%EC%8B%9C%20%EB%8F%99%EC%95%88%EA%B5%AC%20%EA%B4%80%ED%8F%89%EB%A1%9C212%EB%B2%88%EA%B8%B8%2021" target="_blank" rel="noopener">네이버 지도</a>에서 길찾기</p>
         </div>
         <form id="consult" novalidate>
-          <p class="form-note">온라인 신청은 준비 중이에요. 지금은 <b>010-2768-8957</b>로 전화나 문자로 문의해 주세요.</p>
+          <p class="form-note">온라인 신청은 준비 중이에요. 지금은 <b>010-6278-8957</b>로 전화나 문자로 문의해 주세요.</p>
           <div class="row">
             <label for="name">성함<input id="name" name="name" required placeholder="홍길동"></label>
             <label for="phone">연락처<input id="phone" name="phone" required inputmode="tel" placeholder="010-1234-5678"></label>
@@ -503,7 +503,7 @@ footer strong { color: var(--ink); font-family: var(--font-display); font-weight
   <div class="wrap">
     <strong>하연이 부동산 공인중개사사무소</strong>
     <p>대표 공인중개사 이하연 · 중개사무소 등록번호 34257-454-23678 · 사업자등록번호 110-07-31312</p>
-    <p>주소 경기도 안양시 동안구 관평로212번길 21, 상가 1층 101호 · 전화 010-2768-8957</p>
+    <p>주소 경기도 안양시 동안구 관평로212번길 21, 상가 1층 101호 · 전화 010-6278-8957</p>
     <p>개인정보처리방침 · © 2026 하연이 부동산</p>
   </div>
 </footer>
@@ -969,7 +969,7 @@ footer strong { color: var(--ink); font-family: var(--font-display); font-weight
     if (!items.length) {
       list.innerHTML = `<div class="empty-card"><h3>매물 준비 중이에요</h3>
         <p>지금은 홈페이지에 올린 매물이 없어요. 원하시는 조건을 알려주시면 맞는 집을 찾아 연락드릴게요.</p>
-        <p class="tel">010-2768-8957</p></div>`;
+        <p class="tel">010-6278-8957</p></div>`;
       return;
     }
     const rows = items.filter(i => (deal === "all" || i.deal === deal) && (kind === "all" || i.kind === kind));
@@ -1007,6 +1007,6 @@ document.getElementById("consult").addEventListener("submit", e => {
   if (!name || !phone) { msg.textContent = "성함과 연락처를 입력해 주세요."; return; }
   if (!document.getElementById("agree").checked) { msg.textContent = "개인정보 수집·이용에 동의해 주셔야 신청할 수 있어요."; return; }
   // 온라인 접수(서버 연결)는 아직 없어요. 입력한 내용은 어디에도 저장되거나 전송되지 않아요.
-  msg.textContent = "온라인 접수는 준비 중이라 신청서가 전송되지 않았어요. 010-2768-8957로 전화나 문자를 주시면 바로 상담해 드릴게요.";
+  msg.textContent = "온라인 접수는 준비 중이라 신청서가 전송되지 않았어요. 010-6278-8957로 전화나 문자를 주시면 바로 상담해 드릴게요.";
 });
 </script>
