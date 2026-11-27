@@ -2,8 +2,11 @@
 홈페이지가 읽는 prices_data.js 파일로 저장합니다.
 
 사용법
-  1. 같은 폴더의 api_key.txt 에 공공데이터포털 인증키(Decoding 키)를 붙여 넣고 저장
-  2. update_prices.bat 더블클릭 (또는: python update_prices.py)
+  1. 같은 폴더의 .env 파일에 공공데이터포털 인증키(Decoding 키)를 적고 저장
+       DATA_GO_KR_KEY=여기에_인증키
+     (.env.example 을 복사해서 이름을 .env 로 바꾸면 편해요. .env 는 GitHub에 올라가지 않아요.)
+     GitHub Actions 처럼 환경 변수 DATA_GO_KR_KEY 가 있으면 그 값을 먼저 씁니다.
+  2. update_prices.bat 더블클릭 (또는: py update_prices.py)
 """
 import json
 import os
@@ -26,7 +29,8 @@ TRADE_URL = "https://apis.data.go.kr/1613000/RTMSDataSvcAptTradeDev/getRTMSDataS
 RENT_URL = "https://apis.data.go.kr/1613000/RTMSDataSvcAptRent/getRTMSDataSvcAptRent"
 
 HERE = Path(__file__).resolve().parent
-KEY_FILE = HERE / "api_key.txt"
+ENV_FILE = HERE / ".env"
+KEY_NAME = "DATA_GO_KR_KEY"
 OUT_FILE = HERE / "prices_data.js"
 # -------------------------------------------------------------------------
 
@@ -35,14 +39,25 @@ class ApiError(Exception):
     pass
 
 
+def read_env_file(path: Path) -> dict:
+    """KEY=VALUE 형식의 .env 파일을 읽습니다. # 으로 시작하는 줄은 무시."""
+    values = {}
+    if path.exists():
+        for line in path.read_text(encoding="utf-8-sig").splitlines():
+            line = line.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+            k, v = line.split("=", 1)
+            values[k.strip()] = v.strip().strip('"').strip("'")
+    return values
+
+
 def read_key() -> str:
-    if not KEY_FILE.exists():
-        KEY_FILE.write_text("", encoding="utf-8")
-    key = KEY_FILE.read_text(encoding="utf-8-sig").strip()
+    key = os.environ.get(KEY_NAME, "").strip() or read_env_file(ENV_FILE).get(KEY_NAME, "")
     if not key:
         raise ApiError(
-            f"인증키가 없어요. {KEY_FILE.name} 파일을 메모장으로 열어 "
-            "공공데이터포털의 인증키(Decoding)를 붙여 넣고 저장해 주세요."
+            f"인증키가 없어요. 이 폴더의 .env 파일을 메모장으로 열어 "
+            f"{KEY_NAME}=인증키 형식으로 공공데이터포털 인증키(Decoding)를 적고 저장해 주세요."
         )
     # Encoding 키를 넣어도 동작하도록 한 번 풀어 둡니다.
     return urllib.parse.unquote(key)
