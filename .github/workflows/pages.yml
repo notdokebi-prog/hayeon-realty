@@ -1,0 +1,56 @@
+# 하연이 부동산 홈페이지를 GitHub Pages 에 올립니다.
+# - main 에 올릴 때마다, 그리고 매일 오전 9시(한국 시간)에 실행돼요.
+# - 저장소 설정의 Secrets 에 DATA_GO_KR_KEY 가 있으면 포레온 실거래가를 새로 받아서 올려요.
+#   키가 없거나 국토부 서버 오류가 나면, 저장소에 들어 있는 prices_data.js 를 그대로 써요.
+name: 홈페이지 올리기
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "0 0 * * *"      # 매일 00:00 UTC = 오전 9시 KST
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: 포레온 실거래가 새로 받기
+        continue-on-error: true
+        env:
+          DATA_GO_KR_KEY: ${{ secrets.DATA_GO_KR_KEY }}
+        run: python update_prices.py
+
+      - name: 공개용 사이트 만들기
+        run: python build_site.py
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

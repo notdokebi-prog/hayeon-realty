@@ -11,3 +11,6 @@ __pycache__/
 
 # 점검용 임시 파일
 _점검용_*.html
+
+# 공개용으로 만든 사이트 (build_site.py 결과)
+_site/

@@ -191,9 +191,14 @@ def main():
         sys.stdout = open(os.devnull, "w", encoding="utf-8")
     auto = "--auto" in sys.argv          # 매일 자동 실행: 서버 오류 시 다시 시도하고 기록을 남김
     attempts = 3 if auto else 1
+    try:
+        key = read_key()                 # 키가 없으면 다시 시도해도 소용없으니 바로 끝냄
+    except ApiError as e:
+        print("\n[실패] " + str(e))
+        return 1
     for n in range(1, attempts + 1):
         try:
-            trades, rents = fetch_everything(read_key())
+            trades, rents = fetch_everything(key)
             break
         except ApiError as e:
             print("\n[실패] " + str(e))
