@@ -206,8 +206,8 @@ table.rt td .sub { display: block; color: var(--muted); font-size: .75rem; }
 .rt-panel .map { margin-top: 10px; }
 .apt-pin .pin.office { width: 48px; height: 58px; cursor: default; }
 .office-tip { font-family: var(--font-body); font-size: .8rem; line-height: 1.4; text-align: center; border-radius: 8px; }
-.map-pop { position: absolute; z-index: 1100; width: min(300px, calc(100% - 16px)); background: var(--surface); border: 1.5px solid var(--leaf); border-radius: 14px; padding: 12px 14px; box-shadow: 0 8px 24px rgb(0 0 0 / .15); font-size: .85rem; }
-.map-pop h4 { margin: 0; font-family: var(--font-display); font-weight: 400; font-size: 1.1rem; }
+.map-pop { position: absolute; z-index: 1100; width: min(200px, calc(100% - 16px)); background: var(--surface); border: 1.5px solid var(--leaf); border-radius: 14px; padding: 12px 14px; box-shadow: 0 8px 24px rgb(0 0 0 / .15); font-size: .85rem; }
+.map-pop h4 { margin: 0 0 4px; font-family: var(--font-display); font-weight: 400; font-size: 1.1rem; }
 .map-pop .mp-sub { color: var(--muted); font-size: .78rem; font-variant-numeric: tabular-nums; }
 .map-pop svg { display: block; width: 100%; height: auto; margin: 6px 0 4px; }
 .map-pop svg text { fill: var(--muted); font-size: 10px; }
@@ -830,9 +830,20 @@ footer strong { color: var(--ink); font-family: var(--font-display); font-weight
     $("rt-brush-bars").innerHTML = `<svg viewBox="0 0 ${N} 52" preserveAspectRatio="none" aria-hidden="true">${counts.map((c, i) =>
       c ? `<rect x="${i + 0.18}" y="${48 - c / mx * 40}" width="0.64" height="${c / mx * 40}" fill="var(--muted)" fill-opacity=".45"/>` : "").join("")}</svg>`;
     // 아래 눈금: 매년 1월 + 처음/끝
-    const marks = MONTHS.map((ym, i) => ({ ym, i })).filter(({ ym, i }) => i === 0 || ym.endsWith("-01"));
-    $("rt-brush-labels").innerHTML = marks.map(({ ym, i }) =>
-      `<span style="left:${i / N * 100}%;${i === 0 ? "transform:none" : ""}">${i === 0 || ym.endsWith("-01") ? ym.slice(0, 4) + "." + ym.slice(5) : ""}</span>`).join("");
+    // 눈금 글자끼리 겹치지 않게: 막대 폭에 들어갈 만큼만, 서로 충분히 떨어진 달만 표시
+    const barW = $("rt-brush").getBoundingClientRect().width || 600;
+    const minGap = Math.ceil(64 / barW * N);              // 글자 하나(약 64px)가 차지하는 달 수
+    const cand = MONTHS.map((ym, i) => ({ ym, i })).filter(({ ym, i }) => i === 0 || i === N - 1 || ym.endsWith("-01"));
+    const marks = [];
+    cand.forEach(c => {
+      const last = marks[marks.length - 1];
+      if (!last || c.i - last.i >= minGap) marks.push(c);
+      else if (c.i === N - 1) { if (marks.length > 1) marks.pop(); marks.push(c); }   // 마지막 달은 꼭 표시
+    });
+    $("rt-brush-labels").innerHTML = marks.map(({ ym, i }) => {
+      const pos = i === N - 1 ? "right:0;left:auto;transform:none" : `left:${i / N * 100}%;${i === 0 ? "transform:none" : ""}`;
+      return `<span style="${pos}">${ym.slice(0, 4)}.${ym.slice(5)}</span>`;
+    }).join("");
     positionBrush();
   }
   function positionBrush() {
@@ -887,36 +898,19 @@ footer strong { color: var(--ink); font-family: var(--font-display); font-weight
     e.preventDefault(); setRange(a, b);
   }));
   $("rt-range-reset").addEventListener("click", () => setRange(0, N - 1));
+  let resizeT = 0;
+  window.addEventListener("resize", () => { clearTimeout(resizeT); resizeT = setTimeout(rangeUi, 150); });
 
   // ---- 약도의 포레온 표시: 마우스를 올리거나 누르면 실거래가 미니 차트 ----
   (function mapPopup() {
     const map = $("area-map"), pin = $("map-pin"), pop = $("map-pop");
     if (!map || !pin || !pop) return;
+    // 최근 매매 실거래 5건을 날짜와 가격만 보여줌
     function build() {
       if (!valid.length) { pop.innerHTML = "<h4>올림픽파크 포레온</h4><p class='mp-sub'>아직 신고된 매매 거래가 없어요.</p>"; return; }
-      const ts = valid.map(t => new Date(t.d).getTime()), x0 = Math.min(...ts), x1 = Math.max(...ts) || x0 + 1;
-      const ps = valid.map(t => t.price / 10000), pMin = Math.min(...ps), pMax = Math.max(...ps);
-      const step = [5, 10, 20].find(s => Math.ceil(pMax / s) - Math.floor(pMin / s) <= 4) || 20;
-      const lo = Math.floor(pMin / step) * step, hi = Math.max(lo + step, Math.ceil(pMax / step) * step);
-      const W = 280, H = 120, L = 30, R = 6, T = 6, B = 18;
-      const X = t => L + (t - x0) / Math.max(1, x1 - x0) * (W - L - R), Y = v => T + (hi - v) / (hi - lo) * (H - T - B);
-      let s = `<svg viewBox="0 0 ${W} ${H}" aria-hidden="true">`;
-      for (let v = lo; v <= hi; v += step) s += `<line x1="${L}" x2="${W - R}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)"/><text x="${L - 4}" y="${Y(v) + 3}" text-anchor="end">${v}억</text>`;
-      const d0 = valid[valid.length - 1].d, d1 = valid[0].d;
-      s += `<text x="${L}" y="${H - 4}">${d0.slice(2, 7).replace("-", ".")}</text><text x="${W - R}" y="${H - 4}" text-anchor="end">${d1.slice(2, 7).replace("-", ".")}</text>`;
-      valid.slice().reverse().forEach(t => { const ty = typeOf(t.area);
-        s += `<circle cx="${X(new Date(t.d).getTime())}" cy="${Y(t.price / 10000)}" r="2.6" fill="${ty ? ty.color : "var(--muted)"}" stroke="var(--surface)" stroke-width="1"/>`; });
-      s += "</svg>";
-      const last = valid[0], lt = typeOf(last.area);
-      const top = TYPES.map(ty => ({ ty, l: valid.filter(t => typeOf(t.area) === ty) })).sort((a, b) => b.l.length - a.l.length)[0];
-      const med = (() => { const p = top.l.map(t => t.price).sort((a, b) => a - b), n = p.length; return n % 2 ? p[(n - 1) / 2] : Math.round((p[n / 2 - 1] + p[n / 2]) / 2); })();
-      pop.innerHTML = `<h4>올림픽파크 포레온</h4>
-        <p class="mp-sub">매매 실거래 ${valid.length}건${isSample ? " · 예시 데이터" : ""} · 점 색은 평형별</p>
-        ${s}
-        <div class="mp-row"><span>최근 거래 ${last.d.slice(2).replace(/-/g, ".")} · ${lt ? typeName(lt) : esc(last.area) + "㎡"}</span><b>${won(last.price)}</b></div>
-        <div class="mp-row"><span>${typeName(top.ty)} 중간값 (${top.l.length}건)</span><b>${won(med)}</b></div>
-        <a href="#prices" id="map-pop-link">실거래가 자세히 보기 →</a>`;
-      $("map-pop-link").addEventListener("click", () => close());
+      const dateKo = d => { const [y, m, dd] = d.split("-"); return `${y}.${m}.${dd}`; };
+      pop.innerHTML = `<h4>올림픽파크 포레온</h4>` +
+        valid.slice(0, 5).map(t => `<div class="mp-row"><span>${dateKo(t.d)}</span><b>${won(t.price)}원</b></div>`).join("");
     }
     let timer = 0;
     const open = () => { clearTimeout(timer); build(); pop.style.left = "8px"; pop.style.top = "8px"; pop.hidden = false; pin.setAttribute("aria-expanded", "true"); };
